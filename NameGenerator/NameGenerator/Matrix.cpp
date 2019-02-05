@@ -6,7 +6,13 @@ Matrix::Matrix(int rows, int columns)
 {
 	r = rows;
 	c = columns;
-	data = new float[rows * columns];
+
+	int count = rows * columns;
+	data = new float[count];
+	for (int i = 0; i < count; ++i)
+	{
+		data[i] = 0.f;
+	}
 }
 
 Matrix::Matrix(Matrix& copy)
@@ -63,6 +69,16 @@ float Matrix::getAt(int row, int column)
 void Matrix::setAt(int row, int column, float value)
 {
 	data[row * c + column] = value;
+}
+
+Matrix identity(int size)
+{
+	Matrix result(size, size);
+	for (int i = 0; i < size; ++i)
+	{
+		result.setAt(i, i, 1.f);
+	}
+	return result;
 }
 
 Matrix operator*(Matrix& A, Matrix& B)

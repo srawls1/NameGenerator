@@ -19,4 +19,6 @@ public:
 	void setAt(int row, int column, float value);
 };
 
+Matrix identity(int size);
+
 Matrix operator*(Matrix& A, Matrix& B);
