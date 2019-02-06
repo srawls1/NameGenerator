@@ -4,12 +4,13 @@
 #include "stdafx.h"
 #include "MarkovChain.h"
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <string>
 #include <cstdlib>
 #include <ctime>
 
-static std::string characters = "\0abcdefghijklmnopqrstuvwxyz`"; // We'll use 0 to represent the beginning or end of a name in this case
+static std::string characters = " abcdefghijklmnopqrstuvwxyz`"; // We'll use 0 to represent the beginning or end of a name in this case
 
 char toLowerCase(char arg)
 {
@@ -41,9 +42,20 @@ void normalizeToProbabilities(Matrix& frequencies)
 			columnTotal += frequencies.getAt(row, col);
 		}
 
-		for (int row = 0; row < frequencies.numRows(); ++row)
+		if (columnTotal == 0.f)
 		{
-			frequencies.setAt(row, col, frequencies.getAt(row, col) / columnTotal);
+			float probability = 1.f / frequencies.numRows();
+			for (int row = 0; row < frequencies.numRows(); ++row)
+			{
+				frequencies.setAt(row, col, probability);
+			}
+		}
+		else
+		{
+			for (int row = 0; row < frequencies.numRows(); ++row)
+			{
+				frequencies.setAt(row, col, frequencies.getAt(row, col) / columnTotal);
+			}
 		}
 	}
 }
@@ -73,17 +85,44 @@ Matrix readTransitionProbabilities(std::istream& in)
 std::string generateName(MarkovChain& chain)
 {
 	std::string result = "";
-	std::cout << chain.getCurrentState() << std::endl;
 	chain.transitionStates();
 	while (chain.getCurrentState() != 0)
 	{
-		std::cout << chain.getCurrentState() << std::endl;
 		result += characters[chain.getCurrentState()];
 		chain.transitionStates();
 	}
-	std::cout << chain.getCurrentState() << std::endl;
 	result[0] = toUpperCase(result[0]);
 	return result;
+}
+
+bool containsVowels(std::string& str)
+{
+	for (int i = 0; i < str.length(); ++i)
+	{
+		if (toLowerCase(str[i]) == 'a' ||
+			toLowerCase(str[i]) == 'e' ||
+			toLowerCase(str[i]) == 'i' ||
+			toLowerCase(str[i]) == 'o' ||
+			toLowerCase(str[i]) == 'u' ||
+			(i > 0 && toLowerCase(str[i]) == 'y'))
+		{
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+std::string getNameWithVowelsAndMinimumLength(MarkovChain& chain)
+{
+	while (true)
+	{
+		std::string result = generateName(chain);
+		if (result.length() > 0 && containsVowels(result))
+		{
+			return result;
+		}
+	}
 }
 
 void seedRandom()
@@ -116,7 +155,7 @@ int main(int argc, char** argv)
 	std::cout << "Press enter to get a name. Type anything and press enter to quit" << std::endl;
 	while (std::cin.getline(input, 2) && strlen(input) == 0)
 	{
-		std::string name = generateName(chain);
+		std::string name = getNameWithVowelsAndMinimumLength(chain);
 		std::cout << name << std::endl;
 	}
     return 0;
