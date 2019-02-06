@@ -7,6 +7,7 @@ MarkovChain::MarkovChain(int numStates, int initialState, Matrix transitionProba
 	: states(numStates, 1), probabilities(transitionProbabilities)
 {
 	states.setAt(initialState, 0, 1.f);
+	currentState = initialState;
 }
 
 
@@ -16,20 +17,7 @@ MarkovChain::~MarkovChain()
 
 int MarkovChain::getCurrentState()
 {
-	float random = (float)rand() / RAND_MAX;
-	float cumulativeProbability = 0.f;
-
-	for (int i = 0; i < states.numRows(); ++i)
-	{
-		cumulativeProbability += states.getAt(i, 0);
-		if (random < cumulativeProbability)
-		{
-			setCurrentState(i);
-			return i;
-		}
-	}
-
-	return -1;
+	return currentState;
 }
 
 void MarkovChain::setCurrentState(int state)
@@ -40,6 +28,7 @@ void MarkovChain::setCurrentState(int state)
 	}
 
 	states.setAt(state, 0, 1.f);
+	currentState = state;
 }
 
 void MarkovChain::transitionStates(int numSteps)
@@ -51,4 +40,18 @@ void MarkovChain::transitionStates(int numSteps)
 	}
 
 	states = transitionProbabilities * states;
+
+
+	float random = (float)rand() / RAND_MAX;
+	float cumulativeProbability = 0.f;
+
+	for (int i = 0; i < states.numRows(); ++i)
+	{
+		cumulativeProbability += states.getAt(i, 0);
+		if (random < cumulativeProbability)
+		{
+			setCurrentState(i);
+			break;
+		}
+	}
 }

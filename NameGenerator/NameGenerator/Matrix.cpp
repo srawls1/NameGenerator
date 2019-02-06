@@ -42,7 +42,10 @@ Matrix::Matrix(Matrix&& toMove)
 
 Matrix::~Matrix()
 {
-	delete[] data;
+	if (data != nullptr)
+	{
+		delete[] data;
+	}
 }
 
 
@@ -59,6 +62,8 @@ Matrix& Matrix::operator=(Matrix& copy)
 	{
 		data[i] = copy.data[i];
 	}
+
+	return *this;
 }
 
 float Matrix::getAt(int row, int column)
@@ -90,7 +95,7 @@ Matrix operator*(Matrix& A, Matrix& B)
 		for (int column = 0; column < B.numColumns(); ++column)
 		{
 			float cellResult = 0.f;
-			for (int x = 0; x < A.numColumns() && x < B.numRows; ++x)
+			for (int x = 0; x < A.numColumns() && x < B.numRows(); ++x)
 			{
 				cellResult += A.getAt(row, x) * B.getAt(x, column);
 			}
